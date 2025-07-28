@@ -74,5 +74,6 @@ Daily midnight process updates financial and inventory records for bulk orders, 
 
 ---
 
-## 📁 Repository Structure (Recommended)
+## 📖 Documentation  
+For detailed documentation, refer to `HandsMen Threads__Documentation.pdf`.
 
