@@ -1,0 +1,39 @@
+trigger Stock_Deduction on HandsMen_Order__c (after insert, after update) {
+    
+    Set<Id> pids = new Set<Id>();
+ 
+    for (HandsMen_Order__c order : Trigger.new) {
+        if ( order.HandsMen_Product__c != null && order.Status__c == 'Confirmed') {
+            pids.add(order.HandsMen_Product__c);
+        }
+    }
+ 
+    if (pids.isEmpty()) return;
+    else
+    {
+ 
+        Map<Id, Inventory__c> mapOfInventory = new Map<Id, Inventory__c>(
+            [SELECT Id, Stock_Quantity__c, HandsMen_Product__c 
+            FROM Inventory__c 
+            WHERE HandsMen_Product__c IN :pids]
+        );
+    
+        List<Inventory__c> actionNeededOnInventory = new List<Inventory__c>();
+    
+        for (HandsMen_Order__c order : Trigger.new) {
+            if ( order.HandsMen_Product__c != null && order.Status__c == 'Confirmed') {
+                for (Inventory__c inv : mapOfInventory.values()) {
+                    if (inv.HandsMen_Product__c == order.HandsMen_Product__c) {
+                        inv.Stock_Quantity__c -= order.Quantity__c;
+                        actionNeededOnInventory.add(inv);
+                        break;
+                    }
+                }
+            }
+        }
+    
+        if (!actionNeededOnInventory.isEmpty()) {
+            update actionNeededOnInventory;
+        }
+    }
+}
