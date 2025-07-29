@@ -1,0 +1,67 @@
+trigger LoyaltyStatusUpdateTrigger on HandsMen_Order__c (after insert, after update, after delete, after undelete) {
+    Set<Id> customerIds = new Set<Id>();
+
+    // Collect affected customer IDs based on trigger context
+    if (Trigger.isInsert || Trigger.isUpdate || Trigger.isUndelete) {
+        for (HandsMen_Order__c order : Trigger.new) {
+            if (order.HandsMen_Customer__c != null) {
+                customerIds.add(order.HandsMen_Customer__c);
+            }
+        }
+    }
+
+    if (Trigger.isUpdate || Trigger.isDelete) {
+        for (HandsMen_Order__c order : Trigger.old) {
+            if (order.HandsMen_Customer__c != null) {
+                customerIds.add(order.HandsMen_Customer__c);
+            }
+        }
+    }
+
+    if (customerIds.isEmpty()) return;
+
+    // Map to store total amount per customer
+    Map<Id, Decimal> customerTotalMap = new Map<Id, Decimal>();
+
+    // Query confirmed orders grouped by customer
+    AggregateResult[] groupedResults = [
+        SELECT HandsMen_Customer__c, SUM(Total_Amount__c) total
+        FROM HandsMen_Order__c
+        WHERE HandsMen_Customer__c IN :customerIds AND Status__c = 'Confirmed'
+        GROUP BY HandsMen_Customer__c
+    ];
+
+    for (AggregateResult ar : groupedResults) {
+        Id custId = (Id) ar.get('HandsMen_Customer__c');
+        Decimal total = (Decimal) ar.get('total');
+        customerTotalMap.put(custId, total);
+    }
+
+    // Prepare customers for update
+    List<HandsMen_Customer__c> customersToUpdate = new List<HandsMen_Customer__c>();
+
+    for (Id custId : customerIds) {
+        Decimal total = customerTotalMap.containsKey(custId) ? customerTotalMap.get(custId) : 0;
+        String loyalty;
+
+        if (total >= 1000) {
+            loyalty = 'Gold';
+        } else if (total < 500) {
+            loyalty = 'Bronze';
+        } else {
+            loyalty = 'Silver';
+        }
+
+        HandsMen_Customer__c customer = new HandsMen_Customer__c(
+            Id = custId,
+            Total_Purchases__c = total,
+            Loyalty_Status__c = loyalty
+        );
+
+        customersToUpdate.add(customer);
+    }
+
+    if (!customersToUpdate.isEmpty()) {
+        update customersToUpdate;
+    }
+}
