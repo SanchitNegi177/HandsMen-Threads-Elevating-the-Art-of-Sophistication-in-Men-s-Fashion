@@ -74,7 +74,7 @@ HandsMen Threads leverages Salesforce to streamline operations across customer m
 
 ## 📖 Documentation
 
-For detailed documentation, refer to `HandsMen_Threads_Solution_Design.pdf` .
+For detailed documentation, refer to [HandsMen_Threads_Solution_Design.pdf](./HandsMen_Threads_Solution_Design.pdf) .
 
 ---
 
