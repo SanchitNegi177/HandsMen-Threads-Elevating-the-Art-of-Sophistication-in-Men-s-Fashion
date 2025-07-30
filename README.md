@@ -37,11 +37,11 @@ HandsMen Threads leverages Salesforce to streamline operations across customer m
 
 ### Apex Triggers
 
-| Trigger Name           | Object               | Purpose                                                  |
-|------------------------|----------------------|----------------------------------------------------------|
-| Update_Order_Total     | HandsMen_Order__c    | Auto-calculate `Total_Amount__c` when order is saved     |
-| Stock_Deduction        | Inventory__c         | Decrease inventory count on new order                    |
-| LoyaltyStatusUpdateTrigger  | HandsMen_Order__c | Adjust loyalty tier after purchases                      |
+| Trigger Name                | Object               | Purpose                                                  |
+|-----------------------------|----------------------|----------------------------------------------------------|
+| Update_Order_Total          | HandsMen_Order__c    | Auto-calculate `Total_Amount__c` when order is saved     |
+| Stock_Deduction             | Inventory__c         | Decrease inventory count on new order                    |
+| LoyaltyStatusUpdateTrigger  | HandsMen_Order__c    | Adjust loyalty tier after purchases                      |
 
 ### Flows & Processes
 
